@@ -1,4 +1,4 @@
 wxEditor
 ========
 
-A barebones gui text editor. Written in python, using wxPython. Distributed under GPLv2.
+A barebones gui text editor written in python, using wxPython. Distributed under GPLv2.
