@@ -175,7 +175,7 @@ class MyFrame(wxFrame):
 		
 		self.tab_list.append(MySTC(self.panel[number], ID)) #add tab to the tab list
 		self.tab_list[number].modify=0
-		EVT_STC_CHARADDED(self.tab_list[number], ID, self.update_text) #update new tab
+#		EVT_STC_CHARADDED(self.tab_list[number], ID, self.update_text) #update new tab
 		EVT_STC_UPDATEUI(self.tab_list[number], ID, self.OnUpdateUI) #update new tab
 		#############
 		dt = MyFileDropTarget(self)
@@ -338,7 +338,7 @@ Get source code at: https://github.com/0b0bby0/wxEditor
     			
 	def change_highlight(self, ev):
 		"""Function to kill all settings for a tab and then display again with new options"""
-		variable=self.style_text[self.current_tab].modify #has something to do whether the document was modified or not
+		variable=self.tab_list[self.current_tab].modify #has something to do whether the document was modified or not
 		bar=self.tab_list[self.current_tab].GetText() #get text in tab
 		size=self.tab_list[self.current_tab].GetSize() #get size of tab
 		ID=wxNewId()
@@ -354,7 +354,7 @@ Get source code at: https://github.com/0b0bby0/wxEditor
 		
 		self.tab_list[self.current_tab].syntax() #call syntax function to update text look
 		self.tab_list[self.current_tab].SetText(bar) #brings text from the old tab that was destroyed
-		self.style_text[self.current_tab].modify=variable
+		self.tab_list[self.current_tab].modify=variable
 		if(wordwraping==0): #check for wordwrap to make sure that the new text is displayed correctly
 			self.tab_list[self.current_tab].SetWrapMode(wxSTC_WRAP_NONE)
 		else:
