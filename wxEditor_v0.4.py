@@ -29,7 +29,7 @@
 from string import *
 from os import access,listdir
 import sys, os
-from random import *
+#from random import *
 from wxPython.wx import *
 from wxPython.stc import *
 from wxPython.lib.buttons import *
