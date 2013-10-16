@@ -112,7 +112,7 @@ class RichTextFrame(rt.RichTextCtrl):
 	def open_document(self, dir_to_file, dire, syntax=None):
    		'''Makes sure that file opening is ok, otherwise gives error'''
 		try:
-			self.SetText(open(dir_to_file).read())
+			self.SetValue(open(dir_to_file).read())
 			self.dir_to_file=dir_to_file
 			self.syntax=syntax #do no add brackets to syntax
 			self.modify=0
@@ -174,7 +174,7 @@ class MyFrame(wxFrame):
 		self.SetSize((int(x),int(y)))
 		self.new_document("")
 
-        
+
 ######### definition of utility methods ###############
 	def new_document(self, evt): #new tab
  		'''Function for generating new document'''
@@ -190,8 +190,9 @@ class MyFrame(wxFrame):
 		
 		self.tab_list.append(RichTextFrame(self.panel[number], ID)) #add tab to the tab list
 		self.tab_list[number].modify=0
-#		EVT_STC_CHARADDED(self.tab_list[number], ID, self.update_text) #update new tab
-		EVT_STC_UPDATEUI(self.tab_list[number], ID, self.OnUpdateUI) #update new tab
+		rt.EVT_RICHTEXT_CHARACTER(self, ID, self.update_text)
+		
+		#rt.EVT_UPDATEUI(self.tab_list[number], ID, self.OnUpdateUI) #update new tab
 		#############
 		dt = MyFileDropTarget(self)
 		self.tab_list[number].SetDropTarget(dt)
@@ -201,6 +202,8 @@ class MyFrame(wxFrame):
 		sizer.Add(self.tab_list[number], 1, wxEXPAND, 0)
 		self.notebook_1.AddPage(self.panel[number], "New_document_"+str(number))
 		self.panel[number].SetSizer(sizer)
+		
+		
 		if(number==0): #re-enable tools if they were inactivated before
    			self.frame_1_toolbar.EnableTool(502, 1)
     			self.frame_1_toolbar.EnableTool(503, 1)
@@ -228,27 +231,39 @@ class MyFrame(wxFrame):
 		self.Refresh()
 		self.current_tab=self.notebook_1.GetSelection()
 		self.OnUpdateUI(1) #update statusbar
-		if(self.tab_list[self.current_tab].CanUndo()==0): #if undo is available
-			self.menubar.Enable(9, 0)
-		else:
+		if self.tab_list[self.current_tab].CanUndo(): #if undo is available
 			self.menubar.Enable(9, 1)
-		if(self.tab_list[self.current_tab].CanRedo()==0): #if redo is available
-			self.menubar.Enable(10, 0)
+			self.frame_1_toolbar.EnableTool(513, 1) #undo
 		else:
+			self.menubar.Enable(9, 0)
+			self.frame_1_toolbar.EnableTool(513, 0) #undo
+			
+		if self.tab_list[self.current_tab].CanRedo(): #if redo is available
 			self.menubar.Enable(10, 1)
+			self.frame_1_toolbar.EnableTool(514, 1) #redo
+		else:
+			self.menubar.Enable(10, 0)
+			self.frame_1_toolbar.EnableTool(514, 0) #redo
 		self.tab_list[self.current_tab].SetFocus()   #to restore the pointer
 		
 
 	def update_text(self, ev):
 		self.tab_list[self.current_tab].modify=1
-		if(self.tab_list[self.current_tab].CanUndo()==0): #if undo is available
-			self.menubar.Enable(9, 0)
-		else:
+		self.current_tab=self.notebook_1.GetSelection()
+		if self.tab_list[self.current_tab].CanUndo(): #if undo is available
 			self.menubar.Enable(9, 1)
-		if(self.tab_list[self.current_tab].CanRedo()==0): #if redo is available
-			self.menubar.Enable(10, 0)
+			self.frame_1_toolbar.EnableTool(513, 1) #undo
 		else:
+			self.menubar.Enable(9, 0)
+			self.frame_1_toolbar.EnableTool(513, 0) #undo
+			
+		if self.tab_list[self.current_tab].CanRedo(): #if redo is available
 			self.menubar.Enable(10, 1)
+			self.frame_1_toolbar.EnableTool(514, 1) #redo
+		else:
+			self.menubar.Enable(10, 0)
+			self.frame_1_toolbar.EnableTool(514, 0) #redo
+		self.OnUpdateUI("")
 
 	def OnUpdateUI(self, evt):
 		'''Updates statusbar'''
@@ -331,7 +346,10 @@ Get source code at: https://github.com/0b0bby0/wxEditor
 			self.frame_1_toolbar.EnableTool(507, 0)
 			self.frame_1_toolbar.EnableTool(509, 0)
 			self.frame_1_toolbar.EnableTool(510, 0)
-			self.frame_1_toolbar.EnableTool(511, 0)
+			self.frame_1_toolbar.EnableTool(511, 0) 
+#			self.frame_1_toolbar.EnableTool(512, 0) #highlight
+			self.frame_1_toolbar.EnableTool(513, 0) #undo
+			self.frame_1_toolbar.EnableTool(514, 0) #redo
 			self.menubar.Enable(9, 0)
 			self.menubar.Enable(10, 0)
 
@@ -365,7 +383,7 @@ Get source code at: https://github.com/0b0bby0/wxEditor
 		self.panel[self.current_tab].SetSizer(sizer)
 		self.panel[self.current_tab].SetAutoLayout(1)
 		self.tab_list[self.current_tab].SetSize(size)
-
+#		EVT_STC_CHARADDED(self.style_text[self.current_tab], ID, self.update_text)
 		
 		self.tab_list[self.current_tab].syntax() #call syntax function to update text look
 		self.tab_list[self.current_tab].SetText(bar) #brings text from the old tab that was destroyed
@@ -390,24 +408,27 @@ Get source code at: https://github.com/0b0bby0/wxEditor
 			self.dir_to_open=dire
 	
 	def page_area(self, fileName, all_path, dire):
+		'''This function actually opens the file'''
 		try:
-			if(len(self.tab_list)!=1 or self.notebook_1.GetPageText(0)!="New_document_0" or self.tab_list[0].modify!=0 or len(self.tab_list[0].GetText())!=0):
+			if(len(self.tab_list)!=1 or self.notebook_1.GetPageText(0)!="New_document_0" or self.tab_list[0].modify!=0 or len(self.tab_list[0].GetValue())!=0):
 					self.generate_tab("")
-			self.tab_list[len(self.tab_list)-1].open_document(all_path, dire, self.default_syntax)
-			variable=split(fileName, ".")
 			ext=extensions.keys()
+			self.tab_list[len(self.tab_list)-1].LoadFile(all_path, type=rt.RICHTEXT_TYPE_ANY) #I'll need to change the type
+			#variable=split(fileName, ".")
 
 			self.notebook_1.SetPageText(len(self.tab_list)-1, fileName)
+			self.tab_list[self.current_tab].dir_to_file=all_path
 			self.tab_list[len(self.tab_list)-1].modify=0
-			self.tab_list[len(self.tab_list)-1].EmptyUndoBuffer()
+
 		except:
 			error_window(11, self)
 
 	def save_file(self, evt):
 		'''Function for saving file'''
 		try:
+			text = self.tab_list[self.current_tab].GetValue()
 			file=open(self.tab_list[self.current_tab].dir_to_file, "w")
-			file.write(self.tab_list[self.current_tab].GetText())
+			file.write(text)
 			file.close()
 			variable=split(self.tab_list[self.current_tab].dir_to_file, ".")
 			ext=extensions.keys()
@@ -593,15 +614,31 @@ Get source code at: https://github.com/0b0bby0/wxEditor
 		'''This is the function for the actual search'''
 		if(searchtype==2):
 			end=0
-			start=self.tab_list[self.current_tab].GetCurrentPos()-len(self.search_word.GetValue())-1
+			start=self.tab_list[self.current_tab].GetSelection()[1]-1 #selection?
+			if start == -3:
+				start=self.tab_list[self.current_tab].GetInsertionPoint()-1 #or single char position?
+			text = self.tab_list[self.current_tab].GetValue() #get document text
+			searchword = self.search_word.GetValue() #get searchword
+			for i in range(len(text)):
+				if searchword == text[start-i-len(searchword):start-i]: #go through text until searchword is found
+					self.tab_list[self.current_tab].SetSelection(start-i-len(searchword),start-i)
+					break
+				
 		else:
-			end=len(self.tab_list[self.current_tab].GetText())
-			start=self.tab_list[self.current_tab].GetCurrentPos()
-		to=self.tab_list[self.current_tab].FindText(start,end,self.search_word.GetValue())
-		if (to==-1):
-			error_window(12, self)
-		else:
-			self.tab_list[self.current_tab].SetSelection(to,to+len(self.search_word.GetValue()))
+			start=self.tab_list[self.current_tab].GetSelection()[0]+1
+			if start == -3:
+				start=self.tab_list[self.current_tab].GetInsertionPoint()+1
+			text = self.tab_list[self.current_tab].GetValue()
+			searchword = self.search_word.GetValue()
+			for i in range(len(text)):
+				if searchword == text[start+i:start+i+len(searchword)]:
+					self.tab_list[self.current_tab].SetSelection(start+i, start+i+len(searchword))
+					break
+		#if (to==-1):
+		#	error_window(12, self)
+		#else:
+		#	self.tab_list[self.current_tab].SetSelection(to,to+len(self.search_word.GetValue()))
+
 	
 	def choose_highlight_color(self):
 		'''Used to specify which color to use for highlights'''
@@ -616,6 +653,7 @@ Get source code at: https://github.com/0b0bby0/wxEditor
 		self.attr.SetFlags(wx.TEXT_ATTR_BACKGROUND_COLOUR) #do I need the flag?
 		self.attr.SetBackgroundColour(color)
 		self.tab_list[self.current_tab].SetStyleEx(rt.RichTextRange(selection[0], selection[1]), self.attr)
+		self.update_text("")
 		#How do I refer back to this to delete selections?
 	
 ###################### Defines graphical methods ########################################    
@@ -658,6 +696,12 @@ Get source code at: https://github.com/0b0bby0/wxEditor
 		#Paste
    		self.frame_1_toolbar.AddLabelTool(506, "Paste", wxBitmap(files['default_dir']+"/icon/paste.png", wxBITMAP_TYPE_ANY), wxNullBitmap, wxITEM_NORMAL, 'Paste', 'Paste')
    		EVT_TOOL(self, 506, self.paste)
+   		#Undo
+   		self.frame_1_toolbar.AddLabelTool(513, "Undo", wxBitmap(files['default_dir']+"/icon/undo.png", wxBITMAP_TYPE_ANY), wxNullBitmap, wxITEM_NORMAL, 'Undo', 'Undo')
+   		EVT_TOOL(self, 513, self.undo)   
+   		#Redo
+   		self.frame_1_toolbar.AddLabelTool(514, "Redo", wxBitmap(files['default_dir']+"/icon/redo.png", wxBITMAP_TYPE_ANY), wxNullBitmap, wxITEM_NORMAL, 'Redo', 'Redo')
+   		EVT_TOOL(self, 514, self.redo) 
 		#Search Upward
    		self.frame_1_toolbar.AddLabelTool(507, "Search Upward", wxBitmap(files['default_dir']+"/icon/up.png", wxBITMAP_TYPE_ANY), wxNullBitmap, wxITEM_NORMAL, 'Search Upward', 'Search Upward')
    		EVT_TOOL(self, 507, self.search_up)
@@ -670,9 +714,12 @@ Get source code at: https://github.com/0b0bby0/wxEditor
    		self.frame_1_toolbar.AddLabelTool(510, "Print current window", wxBitmap(files['default_dir']+"/icon/print.png", wxBITMAP_TYPE_ANY), wxNullBitmap, wxITEM_NORMAL, 'Print Current Window', 'Print Current Window')
    		EVT_TOOL(self, 510, self.print_setup)
 		#Highlight text
-#   		self.frame_1_toolbar.AddLabelTool(512, "Close current document", wxBitmap(files['default_dir']+"/icon/close.png", wxBITMAP_TYPE_ANY), wxNullBitmap, wxITEM_NORMAL, 'Highlight Text', 'Highlight Text')
+#   		self.frame_1_toolbar.AddLabelTool(512, "Highlight Text", wxBitmap(files['default_dir']+"/icon/highlight.png", wxBITMAP_TYPE_ANY), wxNullBitmap, wxITEM_NORMAL, 'Highlight Text', 'Highlight Text')
 #   		EVT_TOOL(self, 512, self.color_highlight)   		
    		
+   		self.frame_1_toolbar.EnableTool(513, 0) #undo
+		self.frame_1_toolbar.EnableTool(514, 0) #redo
+   			
 
 	def __set_properties(self):
 		'''General layout of the window'''
@@ -839,7 +886,7 @@ class MySplashScreen(wxSplashScreen):
 	def __init__(self):
 		self.args=sys.argv[1:]
 		bmp = wxImage(files['default_dir']+files['icon']+"/"+"splash.png").ConvertToBitmap()
-		wxSplashScreen.__init__(self, bmp, wxSPLASH_CENTRE_ON_SCREEN|wxSPLASH_TIMEOUT, 1500, None, -1, style = wxSIMPLE_BORDER|wxFRAME_NO_TASKBAR|wxSTAY_ON_TOP)
+		wxSplashScreen.__init__(self, bmp, wxSPLASH_CENTRE_ON_SCREEN|wxSPLASH_TIMEOUT, 100, None, -1, style = wxSIMPLE_BORDER|wxFRAME_NO_TASKBAR|wxSTAY_ON_TOP)
 		EVT_CLOSE(self, self.OnClose)
 
 	def OnClose(self, evt):
