@@ -29,9 +29,9 @@
 from string import *
 from os import access,listdir
 import sys, os
-#from random import *
-from wxPython.wx import *
-from wxPython.stc import *
+import wx
+#from wxPython.wx import *
+#from wxPython.stc import *
 from wxPython.lib.buttons import *
 from wxPython.lib.colourselect import *
 
@@ -39,7 +39,7 @@ import wx.richtext as rt
 
 
 
-wxInitAllImageHandlers()    #I insert the handlers to support all types of image in our case gif
+wx.InitAllImageHandlers()    #I insert the handlers to support all types of image in our case gif
 files={}   #list with all configuration files
 
 files['default_dir'] = os.path.abspath(os.path.dirname(sys.argv[0]))+"/"
@@ -57,8 +57,8 @@ def error(number, lol):
 	file=open(files['default_dir']+"/errors", "r")
 	stringa=file.readlines()
 	file.close()
-	dlg= wxMessageDialog(lol,stringa[number], "Error", wxOK)
-	if dlg.ShowModal() == wxID_OK:
+	dlg= wx.MessageDialog(lol,stringa[number], "Error", wx.OK)
+	if dlg.ShowModal() == wx.ID_OK:
 		dlg.Destroy()
 		lol.Destroy()
 	dlg.Destroy()
@@ -69,8 +69,8 @@ def error_window(number, lol):
 	file=open(files['default_dir']+"/errors", "r")
 	stringa=file.readlines()
 	file.close()
-	dlg= wxMessageDialog(lol,stringa[number], "Error", wxOK)
-	if dlg.ShowModal() == wxID_OK:
+	dlg= wx.MessageDialog(lol,stringa[number], "Error", wx.OK)
+	if dlg.ShowModal() == wx.ID_OK:
 		dlg.Destroy()
 	dlg.Destroy()
 
@@ -83,13 +83,13 @@ class RichTextFrame(rt.RichTextCtrl):
 	modify=1				#to check if the file 'was changed after the rescue
 	dire=""
 	def __init__(self, parent, ID):
-		rt.RichTextCtrl.__init__(self, parent, ID, style = wxNO_FULL_REPAINT_ON_RESIZE | wxNO_BORDER)
+		rt.RichTextCtrl.__init__(self, parent, ID, style = wx.NO_FULL_REPAINT_ON_RESIZE | wx.NO_BORDER)
 		#self.rtc = rt.RichTextCtrl(self, style=wx.VSCROLL|wx.HSCROLL|wx.NO_BORDER);
 		#wx.CallAfter(self.rtc.SetFocus)
 		
 		
-##		self.CmdKeyAssign(ord('+'), wxSTC_SCMOD_CTRL, wxSTC_CMD_ZOOMIN)
-##		self.CmdKeyAssign(ord('-'), wxSTC_SCMOD_CTRL, wxSTC_CMD_ZOOMOUT)
+##		self.CmdKeyAssign(ord('+'), wx.STC_SCMOD_CTRL, wx.STC_CMD_ZOOMIN)
+##		self.CmdKeyAssign(ord('-'), wx.STC_SCMOD_CTRL, wx.STC_CMD_ZOOMOUT)
 ##		self.EmptyUndoBuffer()
 		
 	
@@ -100,10 +100,10 @@ class RichTextFrame(rt.RichTextCtrl):
 		'''Defines the text font, color and other properties'''
 ##		self.StyleClearAll()
 #		self.StyleSetSpec(0, "fore:#000000, back:#00FF00, face:%(font)s,size:%(size)d" % faces) #sets text color
-#		self.StyleSetSpec(wxSTC_STYLE_LINENUMBER, "back:#FFFFFF,face:%(font)s,size:%(size)d" % faces) #sets color of left margin and text that goes there
+#		self.StyleSetSpec(wx.STC_STYLE_LINENUMBER, "back:#FFFFFF,face:%(font)s,size:%(size)d" % faces) #sets color of left margin and text that goes there
 		
-##		self.StyleSetBackground(0, '#00FF00') #for the wxSTC_CHARSET_ANSI style (the 0)
-##		self.StyleSetBackground(wxSTC_STYLE_DEFAULT, wxColour(255,255,255, wx.ALPHA_TRANSPARENT)) #set background color of everything that is not text
+##		self.StyleSetBackground(0, '#00FF00') #for the wx.STC_CHARSET_ANSI style (the 0)
+##		self.StyleSetBackground(wx.STC_STYLE_DEFAULT, wx.Colour(255,255,255, wx.ALPHA_TRANSPARENT)) #set background color of everything that is not text
 		
 #		self.SetSelBackground(True, '#FF00FF') #selection background color
 #		self.SetSelForeground(True, '#00FF00') #selection foreground color
@@ -123,9 +123,9 @@ class RichTextFrame(rt.RichTextCtrl):
 
 ########### Drop file onto editor ###############################
 
-class MyFileDropTarget(wxFileDropTarget):
+class MyFileDropTarget(wx.FileDropTarget):
 	def __init__(self, window):
-		wxFileDropTarget.__init__(self)
+		wx.FileDropTarget.__init__(self)
 		self.window = window
 
 	def OnDropFiles(self, x, y, filenames):
@@ -135,7 +135,7 @@ class MyFileDropTarget(wxFileDropTarget):
 			self.window.page_area(name, file, "")
 
 ############# start frame #############################
-class MyFrame(wxFrame):
+class MyFrame(wx.Frame):
 	frame_1_toolbar=0 #variable that will contain 'the toolbar
 	menubar=0  #
 	default_syntax=0  #variable that contains the index for the syntax of text documents
@@ -148,11 +148,11 @@ class MyFrame(wxFrame):
 	line=0 #linenumber
 	dir_to_open="./"
 	def __init__(self, parent, id, title):
-		wxFrame.__init__(self, parent, id, title)
-		ID=wxNewId()
-		self.notebook_1 = wxNotebook(self, ID, style=0) ######create blank notebook
-		EVT_NOTEBOOK_PAGE_CHANGED(self, ID, self.page_change)
-		EVT_CLOSE(self, self.OnCloseWindow)
+		wx.Frame.__init__(self, parent, id, title)
+		ID=wx.NewId()
+		self.notebook_1 = wx.Notebook(self, ID, style=0) ######create blank notebook
+		wx.EVT_NOTEBOOK_PAGE_CHANGED(self, ID, self.page_change)
+		wx.EVT_CLOSE(self, self.OnCloseWindow)
 
 		#create Menu Bar
 		self.create_menu()
@@ -185,8 +185,8 @@ class MyFrame(wxFrame):
 		'''Function for generating a tab'''
 		number=len(self.tab_list)
 		
-		self.panel.append(wxPanel(self.notebook_1, -1))
-		ID=wxNewId()
+		self.panel.append(wx.Panel(self.notebook_1, -1))
+		ID=wx.NewId()
 		
 		self.tab_list.append(RichTextFrame(self.panel[number], ID)) #add tab to the tab list
 		self.tab_list[number].modify=0
@@ -198,8 +198,8 @@ class MyFrame(wxFrame):
 		self.tab_list[number].SetDropTarget(dt)
 		############
 		self.tab_list[number].syntaxo=self.default_syntax
-		sizer=wxBoxSizer(wxHORIZONTAL)
-		sizer.Add(self.tab_list[number], 1, wxEXPAND, 0)
+		sizer=wx.BoxSizer(wx.HORIZONTAL)
+		sizer.Add(self.tab_list[number], 1, wx.EXPAND, 0)
 		self.notebook_1.AddPage(self.panel[number], "New_document_"+str(number))
 		self.panel[number].SetSizer(sizer)
 		
@@ -214,16 +214,16 @@ class MyFrame(wxFrame):
 			self.frame_1_toolbar.EnableTool(509, 1)
 			self.frame_1_toolbar.EnableTool(510, 1)
 			self.frame_1_toolbar.EnableTool(511, 1)
-		if wxPlatform == '__WXMSW__':
+		if wx.Platform == '__WXMSW__':
 			foo=self.notebook_1.GetSize()     #piece of code so that it works on Win
 			self.notebook_1.SetSize((foo[0], foo [1]-1))        
 			self.notebook_1.SetSize(foo)             
 ##		if(wordwraping==0):
-##			self.tab_list[number].SetWrapMode(wxSTC_WRAP_NONE)
+##			self.tab_list[number].SetWrapMode(wx.STC_WRAP_NONE)
 ##			
 ##		else:
-##			self.tab_list[number].SetWrapMode(wxSTC_WRAP_WORD)
-##		self.notebook_1.SetSelection(number)
+##			self.tab_list[number].SetWrapMode(wx.STC_WRAP_WORD)
+		self.notebook_1.SetSelection(number) #switch to the new tab
 
 
 	def page_change(self, ev):
@@ -318,8 +318,8 @@ Get source code at: https://github.com/0b0bby0/wxEditor
     			file=open(files['default_dir']+"/errors", "r")
     			string=file.readlines()
     			file.close()
-    			dlg= wxMessageDialog(self,self.notebook_1.GetPageText(number)+" "+string[9],  string[8], wxYES_NO)
-    			if dlg.ShowModal() == wxID_YES:
+    			dlg= wx.MessageDialog(self,self.notebook_1.GetPageText(number)+" "+string[9],  string[8], wx.YES_NO)
+    			if dlg.ShowModal() == wx.ID_YES:
     				self.save_as_file("")
     			dlg.Destroy()
     			self.notebook_1.DeletePage(number)
@@ -374,28 +374,28 @@ Get source code at: https://github.com/0b0bby0/wxEditor
 		variable=self.tab_list[self.current_tab].modify #has something to do whether the document was modified or not
 		bar=self.tab_list[self.current_tab].GetText() #get text in tab
 		size=self.tab_list[self.current_tab].GetSize() #get size of tab
-		ID=wxNewId()
+		ID=wx.NewId()
 		self.tab_list[self.current_tab].Destroy() #seems to kill the display of current tab 
 
 		self.tab_list[self.current_tab]=RichTextFrame(self.panel[self.current_tab], ID) #make new tab with new ID
-		sizer=wxBoxSizer(wxHORIZONTAL) #block of code to make sure the panel has the right size
-		sizer.Add(self.tab_list[self.current_tab], ID, wxEXPAND, 0)
+		sizer=wx.BoxSizer(wx.HORIZONTAL) #block of code to make sure the panel has the right size
+		sizer.Add(self.tab_list[self.current_tab], ID, wx.EXPAND, 0)
 		self.panel[self.current_tab].SetSizer(sizer)
 		self.panel[self.current_tab].SetAutoLayout(1)
 		self.tab_list[self.current_tab].SetSize(size)
-#		EVT_STC_CHARADDED(self.style_text[self.current_tab], ID, self.update_text)
+#		wx.EVT_STC_CHARADDED(self.style_text[self.current_tab], ID, self.update_text)
 		
 		self.tab_list[self.current_tab].syntax() #call syntax function to update text look
 		self.tab_list[self.current_tab].SetText(bar) #brings text from the old tab that was destroyed
 		self.tab_list[self.current_tab].modify=variable
 		if(wordwraping==0): #check for wordwrap to make sure that the new text is displayed correctly
-			self.tab_list[self.current_tab].SetWrapMode(wxSTC_WRAP_NONE)
+			self.tab_list[self.current_tab].SetWrapMode(wx.STC_WRAP_NONE)
 		else:
-			self.tab_list[self.current_tab].SetWrapMode(wxSTC_WRAP_WORD)
+			self.tab_list[self.current_tab].SetWrapMode(wx.STC_WRAP_WORD)
     
 	def open_file(self, event ):
 		'''Function for opening file'''
-		dlg = wxFileDialog( self, style=wxOPEN|wxFILE_MUST_EXIST,   defaultDir =self.dir_to_open ,wildcard='TXT files (*)|*|Any file (*)|*')
+		dlg = wx.FileDialog( self, style=wx.OPEN|wx.FILE_MUST_EXIST,   defaultDir =self.dir_to_open ,wildcard='TXT files (*)|*|Any file (*)|*')
 		dlg.ShowModal()
 		fileName = dlg.GetFilename()
 		all_path=dlg.GetPath()
@@ -440,7 +440,7 @@ Get source code at: https://github.com/0b0bby0/wxEditor
 
 	def save_as_file(self, evt):
 		'''Function for saving file as'''
-		dlg = wxFileDialog( self, style=wxSAVE | wxOVERWRITE_PROMPT,defaultDir=self.tab_list[self.current_tab].dire ,wildcard='TXT files (*)|*|Any file (*)|*')
+		dlg = wx.FileDialog( self, style=wx.SAVE | wx.OVERWRITE_PROMPT,defaultDir=self.tab_list[self.current_tab].dire ,wildcard='TXT files (*)|*|Any file (*)|*')
 		dlg.ShowModal()
 		all_path=dlg.GetPath()
 		fileName=dlg.GetFilename()
@@ -454,7 +454,7 @@ Get source code at: https://github.com/0b0bby0/wxEditor
 				self.tab_list[self.current_tab].dir_to_file=all_path
 				self.notebook_1.SetPageText(self.current_tab, fileName)
 				###################
-				if wxPlatform == '__WXMSW__':
+				if wx.Platform == '__WXMSW__':
 					foo=self.GetSize()       #piece of code to make it work on win
 					if (self.IsMaximized()):
 						foo=self.notebook_1.GetSize()       #piece of code to make it work on win
@@ -475,12 +475,12 @@ Get source code at: https://github.com/0b0bby0/wxEditor
 		global wordwraping
 		if(wordwraping==0):
 			for i in range(len(self.tab_list)):
-				self.tab_list[i].SetWrapMode(wxSTC_WRAP_WORD)
+				self.tab_list[i].SetWrapMode(wx.STC_WRAP_WORD)
 			self.edit_files(3,"wordwraping=", 1)
 			wordwraping=1
 		else:
 			for i in range(len(self.tab_list)):
-				self.tab_list[i].SetWrapMode(wxSTC_WRAP_NONE)
+				self.tab_list[i].SetWrapMode(wx.STC_WRAP_NONE)
 			self.edit_files(3,"wordwraping=", 0)
 			wordwraping=0
     		
@@ -498,9 +498,9 @@ Get source code at: https://github.com/0b0bby0/wxEditor
     		
 	def font_config(self, evt):
 		'''Changes font'''
-		data= wxFontData()
-		dlg= wxFontDialog(self, data)
-		if dlg.ShowModal()==wxID_OK:
+		data= wx.FontData()
+		dlg= wx.FontDialog(self, data)
+		if dlg.ShowModal()==wx.ID_OK:
 			data=dlg.GetFontData()
 			data= data.GetChosenFont()
 			font=data.GetFaceName()
@@ -528,24 +528,24 @@ Get source code at: https://github.com/0b0bby0/wxEditor
 		testo=replace(testo, " ", " &nbsp;")
 		testo=replace(testo, "\t", " &nbsp;&nbsp;&nbsp;&nbsp;")
 
-		self.printData = wxPrintData()
-		self.printData.SetPaperId(wxPAPER_A4)
-		pdd = wxPrintDialogData()
+		self.printData = wx.PrintData()
+		self.printData.SetPaperId(wx.PAPER_A4)
+		pdd = wx.PrintDialogData()
 		pdd.SetPrintData(self.printData)
 
 		pdd.EnablePrintToFile(0)
 		pdd.SetMinPage(1)
 		pdd.SetMaxPage(5)
 		pdd.SetAllPages(True)
-		dlg = wxPrintDialog(self, pdd)
-		if dlg.ShowModal() == wxID_OK:
+		dlg = wx.PrintDialog(self, pdd)
+		if dlg.ShowModal() == wx.ID_OK:
 			pdd = dlg.GetPrintDialogData()
 		else:
 			dlg.Destroy()
 			return
 		dlg.Destroy()
-		printer = wxPrinter(pdd)
-		printout = wxHtmlPrintout(title=str(self.tab_list[self.current_tab].dir_to_file))
+		printer = wx.Printer(pdd)
+		printout = wx.HtmlPrintout(title=str(self.tab_list[self.current_tab].dir_to_file))
 		printout.SetMargins(top=15, bottom=15, left=13, right=13)
 		printout.SetHtmlText(testo)
 		printer.Print(self, printout, prompt=FALSE)
@@ -660,62 +660,62 @@ Get source code at: https://github.com/0b0bby0/wxEditor
        
 	def search_tool(self):
 		'''Generates the search textbox'''
-		self.search_word=wxTextCtrl(self.frame_1_toolbar, -1, "")
+		self.search_word=wx.TextCtrl(self.frame_1_toolbar, -1, "")
 		self.frame_1_toolbar.AddControl(self.search_word)
 
 	def __generate_toolbar(self):
 		'''Generates toolbar with icons'''
 	
-		self.frame_1_toolbar = wxToolBar(self, -1, style=wxTB_HORIZONTAL|wxTB_FLAT|wxTB_DOCKABLE)
+		self.frame_1_toolbar = wx.ToolBar(self, -1, style=wx.TB_HORIZONTAL|wx.TB_FLAT|wx.TB_DOCKABLE)
 		self.SetToolBar(self.frame_1_toolbar)      ###instantiate the toolbar
 
    		#syntax for toolbar
    		#AddLabelTool(self, id, label, bitmap, bmpDisabled, kind, shortHelp, longHelp, clientData) 
    		
    		#New Document
-   		self.frame_1_toolbar.AddLabelTool(500, "New Document", wxBitmap(files['default_dir']+"/icon/new.png", wxBITMAP_TYPE_ANY), wxNullBitmap, wxITEM_NORMAL, 'New File', "New File") #last one is the one displayed in status bar
-   		EVT_TOOL(self, 500, self.new_document)
+   		self.frame_1_toolbar.AddLabelTool(500, "New Document", wx.Bitmap(files['default_dir']+"/icon/new.png", wx.BITMAP_TYPE_ANY), wx.NullBitmap, wx.ITEM_NORMAL, 'New File', "New File") #last one is the one displayed in status bar
+   		wx.EVT_TOOL(self, 500, self.new_document)
 		#Open File
-   		self.frame_1_toolbar.AddLabelTool(501, "Open File", wxBitmap(files['default_dir']+"/icon/open.png", wxBITMAP_TYPE_ANY), wxNullBitmap, wxITEM_NORMAL, 'Load File', 'Load File')
-   		EVT_TOOL(self, 501, self.open_file)
+   		self.frame_1_toolbar.AddLabelTool(501, "Open File", wx.Bitmap(files['default_dir']+"/icon/open.png", wx.BITMAP_TYPE_ANY), wx.NullBitmap, wx.ITEM_NORMAL, 'Load File', 'Load File')
+   		wx.EVT_TOOL(self, 501, self.open_file)
 		#Save current file
-   		self.frame_1_toolbar.AddLabelTool(502, "Save current file", wxBitmap(files['default_dir']+"/icon/save.png", wxBITMAP_TYPE_ANY), wxNullBitmap, wxITEM_NORMAL, 'Save File', 'Save File')
-   		EVT_TOOL(self, 502, self.save_file)
+   		self.frame_1_toolbar.AddLabelTool(502, "Save current file", wx.Bitmap(files['default_dir']+"/icon/save.png", wx.BITMAP_TYPE_ANY), wx.NullBitmap, wx.ITEM_NORMAL, 'Save File', 'Save File')
+   		wx.EVT_TOOL(self, 502, self.save_file)
 		#Save as
-   		self.frame_1_toolbar.AddLabelTool(503, "Save as", wxBitmap(files['default_dir']+"/icon/saveas.png", wxBITMAP_TYPE_ANY), wxNullBitmap, wxITEM_NORMAL, 'Save File As', 'Save File As')
-   		EVT_TOOL(self, 503, self.save_as_file)
+   		self.frame_1_toolbar.AddLabelTool(503, "Save as", wx.Bitmap(files['default_dir']+"/icon/saveas.png", wx.BITMAP_TYPE_ANY), wx.NullBitmap, wx.ITEM_NORMAL, 'Save File As', 'Save File As')
+   		wx.EVT_TOOL(self, 503, self.save_as_file)
 		#Close current document
-   		self.frame_1_toolbar.AddLabelTool(511, "Close current document", wxBitmap(files['default_dir']+"/icon/close.png", wxBITMAP_TYPE_ANY), wxNullBitmap, wxITEM_NORMAL, 'Close Current File', 'Close Current File')
-   		EVT_TOOL(self, 511, self.close_single)
+   		self.frame_1_toolbar.AddLabelTool(511, "Close current document", wx.Bitmap(files['default_dir']+"/icon/close.png", wx.BITMAP_TYPE_ANY), wx.NullBitmap, wx.ITEM_NORMAL, 'Close Current File', 'Close Current File')
+   		wx.EVT_TOOL(self, 511, self.close_single)
 		#Cut
-   		self.frame_1_toolbar.AddLabelTool(504, "Cut", wxBitmap(files['default_dir']+"/icon/cut.png", wxBITMAP_TYPE_ANY), wxNullBitmap, wxITEM_NORMAL, 'Cut', 'Cut')
-   		EVT_TOOL(self, 504, self.cut)
+   		self.frame_1_toolbar.AddLabelTool(504, "Cut", wx.Bitmap(files['default_dir']+"/icon/cut.png", wx.BITMAP_TYPE_ANY), wx.NullBitmap, wx.ITEM_NORMAL, 'Cut', 'Cut')
+   		wx.EVT_TOOL(self, 504, self.cut)
 		#Copy
-   		self.frame_1_toolbar.AddLabelTool(505, "Copy", wxBitmap(files['default_dir']+"/icon/copy.png", wxBITMAP_TYPE_ANY), wxNullBitmap, wxITEM_NORMAL, 'Copy', 'Copy')
-   		EVT_TOOL(self, 505, self.copy)
+   		self.frame_1_toolbar.AddLabelTool(505, "Copy", wx.Bitmap(files['default_dir']+"/icon/copy.png", wx.BITMAP_TYPE_ANY), wx.NullBitmap, wx.ITEM_NORMAL, 'Copy', 'Copy')
+   		wx.EVT_TOOL(self, 505, self.copy)
 		#Paste
-   		self.frame_1_toolbar.AddLabelTool(506, "Paste", wxBitmap(files['default_dir']+"/icon/paste.png", wxBITMAP_TYPE_ANY), wxNullBitmap, wxITEM_NORMAL, 'Paste', 'Paste')
-   		EVT_TOOL(self, 506, self.paste)
+   		self.frame_1_toolbar.AddLabelTool(506, "Paste", wx.Bitmap(files['default_dir']+"/icon/paste.png", wx.BITMAP_TYPE_ANY), wx.NullBitmap, wx.ITEM_NORMAL, 'Paste', 'Paste')
+   		wx.EVT_TOOL(self, 506, self.paste)
    		#Undo
-   		self.frame_1_toolbar.AddLabelTool(513, "Undo", wxBitmap(files['default_dir']+"/icon/undo.png", wxBITMAP_TYPE_ANY), wxNullBitmap, wxITEM_NORMAL, 'Undo', 'Undo')
-   		EVT_TOOL(self, 513, self.undo)   
+   		self.frame_1_toolbar.AddLabelTool(513, "Undo", wx.Bitmap(files['default_dir']+"/icon/undo.png", wx.BITMAP_TYPE_ANY), wx.NullBitmap, wx.ITEM_NORMAL, 'Undo', 'Undo')
+   		wx.EVT_TOOL(self, 513, self.undo)   
    		#Redo
-   		self.frame_1_toolbar.AddLabelTool(514, "Redo", wxBitmap(files['default_dir']+"/icon/redo.png", wxBITMAP_TYPE_ANY), wxNullBitmap, wxITEM_NORMAL, 'Redo', 'Redo')
-   		EVT_TOOL(self, 514, self.redo) 
+   		self.frame_1_toolbar.AddLabelTool(514, "Redo", wx.Bitmap(files['default_dir']+"/icon/redo.png", wx.BITMAP_TYPE_ANY), wx.NullBitmap, wx.ITEM_NORMAL, 'Redo', 'Redo')
+   		wx.EVT_TOOL(self, 514, self.redo) 
 		#Search Upward
-   		self.frame_1_toolbar.AddLabelTool(507, "Search Upward", wxBitmap(files['default_dir']+"/icon/up.png", wxBITMAP_TYPE_ANY), wxNullBitmap, wxITEM_NORMAL, 'Search Upward', 'Search Upward')
-   		EVT_TOOL(self, 507, self.search_up)
+   		self.frame_1_toolbar.AddLabelTool(507, "Search Upward", wx.Bitmap(files['default_dir']+"/icon/up.png", wx.BITMAP_TYPE_ANY), wx.NullBitmap, wx.ITEM_NORMAL, 'Search Upward', 'Search Upward')
+   		wx.EVT_TOOL(self, 507, self.search_up)
 		#Search window
 		self.search_tool()
 		#Search Downward
-   		self.frame_1_toolbar.AddLabelTool(509, "Search Downward", wxBitmap(files['default_dir']+"/icon/down.png", wxBITMAP_TYPE_ANY), wxNullBitmap, wxITEM_NORMAL, 'Search Downward', 'Search Downward')
-   		EVT_TOOL(self, 509, self.search_down)
+   		self.frame_1_toolbar.AddLabelTool(509, "Search Downward", wx.Bitmap(files['default_dir']+"/icon/down.png", wx.BITMAP_TYPE_ANY), wx.NullBitmap, wx.ITEM_NORMAL, 'Search Downward', 'Search Downward')
+   		wx.EVT_TOOL(self, 509, self.search_down)
 		#Print current window
-   		self.frame_1_toolbar.AddLabelTool(510, "Print current window", wxBitmap(files['default_dir']+"/icon/print.png", wxBITMAP_TYPE_ANY), wxNullBitmap, wxITEM_NORMAL, 'Print Current Window', 'Print Current Window')
-   		EVT_TOOL(self, 510, self.print_setup)
+   		self.frame_1_toolbar.AddLabelTool(510, "Print current window", wx.Bitmap(files['default_dir']+"/icon/print.png", wx.BITMAP_TYPE_ANY), wx.NullBitmap, wx.ITEM_NORMAL, 'Print Current Window', 'Print Current Window')
+   		wx.EVT_TOOL(self, 510, self.print_setup)
 		#Highlight text
-#   		self.frame_1_toolbar.AddLabelTool(512, "Highlight Text", wxBitmap(files['default_dir']+"/icon/highlight.png", wxBITMAP_TYPE_ANY), wxNullBitmap, wxITEM_NORMAL, 'Highlight Text', 'Highlight Text')
-#   		EVT_TOOL(self, 512, self.color_highlight)   		
+#   		self.frame_1_toolbar.AddLabelTool(512, "Highlight Text", wx.Bitmap(files['default_dir']+"/icon/highlight.png", wx.BITMAP_TYPE_ANY), wx.NullBitmap, wx.ITEM_NORMAL, 'Highlight Text', 'Highlight Text')
+#   		wx.EVT_TOOL(self, 512, self.color_highlight)   		
    		
    		self.frame_1_toolbar.EnableTool(513, 0) #undo
 		self.frame_1_toolbar.EnableTool(514, 0) #redo
@@ -724,7 +724,7 @@ Get source code at: https://github.com/0b0bby0/wxEditor
 	def __set_properties(self):
 		'''General layout of the window'''
 		self.SetTitle("wxEditor") #title at top of program
-		icon=wxIcon(files['default_dir']+files['icon']+"/"+"icon.ico", wxBITMAP_TYPE_ICO)
+		icon=wx.Icon(files['default_dir']+files['icon']+"/"+"icon.ico", wx.BITMAP_TYPE_ICO)
 		self.SetIcon(icon)
 		#statusbar settings
 		self.frame_1_statusbar.SetStatusWidths([-1, -1, -1])
@@ -740,8 +740,8 @@ Get source code at: https://github.com/0b0bby0/wxEditor
 
 
 	def __do_layout(self):
-		sizer_1 = wxBoxSizer(wxVERTICAL)
-		sizer_1.Add(self.notebook_1, 1, wxEXPAND, 0)
+		sizer_1 = wx.BoxSizer(wx.VERTICAL)
+		sizer_1.Add(self.notebook_1, 1, wx.EXPAND, 0)
 		self.SetAutoLayout(1)
 		self.SetSizer(sizer_1)
 		sizer_1.Fit(self)
@@ -760,119 +760,119 @@ Get source code at: https://github.com/0b0bby0/wxEditor
 
 ################################################### Sets up the menu ##################################################
 	def create_menu(self):     #method for creating menu
-		self.menubar = wxMenuBar()
+		self.menubar = wx.MenuBar()
 		self.SetMenuBar(self.menubar)
-		self.menu = wxMenu()
+		self.menu = wx.Menu()
 			
 		#new document
-		item=wxMenuItem(self.menu, 1, "New\tCtrl+Q", "New Document")
+		item=wx.MenuItem(self.menu, 1, "New\tCtrl+Q", "New Document")
 		self.menu.AppendItem(item)
-		EVT_MENU(self, 1, self.new_document)
+		wx.EVT_MENU(self, 1, self.new_document)
 
 		#open document
-		item=wxMenuItem(self.menu, 2, "Open\tCtrl+O", "Open Document")
+		item=wx.MenuItem(self.menu, 2, "Open\tCtrl+O", "Open Document")
 		self.menu.AppendItem(item)
-		EVT_MENU(self, 2, self.open_file)
+		wx.EVT_MENU(self, 2, self.open_file)
 		self.menu.AppendSeparator()
 
 		#save document
-		item=wxMenuItem(self.menu, 3, "Save\tCtrl+S", "Save current document")
+		item=wx.MenuItem(self.menu, 3, "Save\tCtrl+S", "Save current document")
 		self.menu.AppendItem(item)
-		EVT_MENU(self, 3, self.save_file)
+		wx.EVT_MENU(self, 3, self.save_file)
 
 		#save document as
-		item=wxMenuItem(self.menu, 4, "Save as", "Save a copy of current document")
+		item=wx.MenuItem(self.menu, 4, "Save as", "Save a copy of current document")
 		self.menu.AppendItem(item)
-		EVT_MENU(self, 4, self.save_as_file)
+		wx.EVT_MENU(self, 4, self.save_as_file)
 
 		#save all
-		item=wxMenuItem(self.menu, 5, "Save all", "Save all open tabs")
+		item=wx.MenuItem(self.menu, 5, "Save all", "Save all open tabs")
 		self.menu.AppendItem(item)
-		EVT_MENU(self, 5, self.save_all)
+		wx.EVT_MENU(self, 5, self.save_all)
 		self.menu.AppendSeparator()
 
 		#close single
-		item=wxMenuItem(self.menu, 5, "Close", "Close current document")
+		item=wx.MenuItem(self.menu, 5, "Close", "Close current document")
 		self.menu.AppendItem(item)
-		EVT_MENU(self, 5, self.close_single)
+		wx.EVT_MENU(self, 5, self.close_single)
 
 		#close all
-		item=wxMenuItem(self.menu, 6, "Close all", "Close all tabs")
+		item=wx.MenuItem(self.menu, 6, "Close all", "Close all tabs")
 		self.menu.AppendItem(item)
-		EVT_MENU(self, 6, self.close_all)
+		wx.EVT_MENU(self, 6, self.close_all)
 		self.menu.AppendSeparator()
 
 		#quit
-		item=wxMenuItem(self.menu, 7, "Exit", "Exit program")
+		item=wx.MenuItem(self.menu, 7, "Exit", "Exit program")
 		self.menu.AppendItem(item)
-		EVT_MENU(self, 7, self.quit)
+		wx.EVT_MENU(self, 7, self.quit)
 
 		self.menubar.Append(self.menu, "File")
 
 		######################### For 'Edit' menu item #############################################
-		self.menu = wxMenu()
+		self.menu = wx.Menu()
 		#undo
-		item=wxMenuItem(self.menu, 9, "Undo\tCtrl+Z", "Undo")
+		item=wx.MenuItem(self.menu, 9, "Undo\tCtrl+Z", "Undo")
 		self.menu.AppendItem(item)
-		EVT_MENU(self, 9, self.undo)
+		wx.EVT_MENU(self, 9, self.undo)
 
 		#redo
-		item=wxMenuItem(self.menu, 10, "Redo\tCtrl+Y", "Redo")
+		item=wx.MenuItem(self.menu, 10, "Redo\tCtrl+Y", "Redo")
 		self.menu.AppendItem(item)
-		EVT_MENU(self, 10, self.redo)
+		wx.EVT_MENU(self, 10, self.redo)
 		self.menu.AppendSeparator() #________________________devider
 
 		#cut
-		item=wxMenuItem(self.menu, 11, "Cut\tCtrl+X", "Cut selected text")
+		item=wx.MenuItem(self.menu, 11, "Cut\tCtrl+X", "Cut selected text")
 		self.menu.AppendItem(item)
-		EVT_MENU(self,11, self.cut)
+		wx.EVT_MENU(self,11, self.cut)
 
 		#copy
-		item=wxMenuItem(self.menu, 12, "Copy\tCtrl+C", "Copy selected text")
+		item=wx.MenuItem(self.menu, 12, "Copy\tCtrl+C", "Copy selected text")
 		self.menu.AppendItem(item)
-		EVT_MENU(self, 12, self.copy)
+		wx.EVT_MENU(self, 12, self.copy)
 
 		#paste
-		item=wxMenuItem(self.menu, 13, "Paste\tCtrl+V", "Paste selected text")
+		item=wx.MenuItem(self.menu, 13, "Paste\tCtrl+V", "Paste selected text")
 		self.menu.AppendItem(item)
-		EVT_MENU(self, 13, self.paste)
+		wx.EVT_MENU(self, 13, self.paste)
 		self.menu.AppendSeparator() #________________________devider
 
 		#select all
-		item=wxMenuItem(self.menu, 14, "Select all", "Select all text")
+		item=wx.MenuItem(self.menu, 14, "Select all", "Select all text")
 		self.menu.AppendItem(item)
-		EVT_MENU(self, 14, self.select_all)
+		wx.EVT_MENU(self, 14, self.select_all)
 		self.menu.AppendSeparator() #________________________devider
 
 		#uppercase
-		item=wxMenuItem(self.menu, 34, "Uppercase\tCtrl+W", "Convert selected text to uppercase")
+		item=wx.MenuItem(self.menu, 34, "Uppercase\tCtrl+W", "Convert selected text to uppercase")
 		self.menu.AppendItem(item)
-		EVT_MENU(self, 34, self.uppercase)
+		wx.EVT_MENU(self, 34, self.uppercase)
 
 		#lowercase
-		item=wxMenuItem(self.menu, 35, "Lowercase\tCtrl+E", "Convert selected text to lowercase")
+		item=wx.MenuItem(self.menu, 35, "Lowercase\tCtrl+E", "Convert selected text to lowercase")
 		self.menu.AppendItem(item)
-		EVT_MENU(self, 35, self.lowercase)
+		wx.EVT_MENU(self, 35, self.lowercase)
 		self.menu.AppendSeparator() #________________________devider
 
 		#select font
-		item=wxMenuItem(self.menu, 15, "Select font\tCtrl+F", "Select font and textsize")
+		item=wx.MenuItem(self.menu, 15, "Select font\tCtrl+F", "Select font and textsize")
 		self.menu.AppendItem(item)
-		EVT_MENU(self, 15, self.font_config)
+		wx.EVT_MENU(self, 15, self.font_config)
 
 		#wordwrap
-		item = wxMenuItem(self.menu, 20, "Word wrap", "Automatic word wrap", wxITEM_CHECK)
+		item = wx.MenuItem(self.menu, 20, "Word wrap", "Automatic word wrap", wx.ITEM_CHECK)
 		self.menu.AppendItem(item)
-		EVT_MENU(self,20, self.wordwrap)
+		wx.EVT_MENU(self,20, self.wordwrap)
 
 		self.menubar.Append(self.menu, "Edit")
 
 		########## For 'Help' menu item #############
-		self.menu = wxMenu()
+		self.menu = wx.Menu()
 		#about program
-		item = wxMenuItem(self.menu, 21, "About", "About this program")
+		item = wx.MenuItem(self.menu, 21, "About", "About this program")
 		self.menu.AppendItem(item)
-		EVT_MENU(self, 21, self.info)
+		wx.EVT_MENU(self, 21, self.info)
 
 		self.menubar.Append(self.menu, "Help")
 
@@ -881,36 +881,37 @@ Get source code at: https://github.com/0b0bby0/wxEditor
 		self.menubar.Check(20, wordwraping) #word wrap
 		
 
-class MySplashScreen(wxSplashScreen):
+class MySplashScreen(wx.SplashScreen):
 	'''Class for defining the startup splash screen'''
 	def __init__(self):
 		self.args=sys.argv[1:]
-		bmp = wxImage(files['default_dir']+files['icon']+"/"+"splash.png").ConvertToBitmap()
-		wxSplashScreen.__init__(self, bmp, wxSPLASH_CENTRE_ON_SCREEN|wxSPLASH_TIMEOUT, 100, None, -1, style = wxSIMPLE_BORDER|wxFRAME_NO_TASKBAR|wxSTAY_ON_TOP)
-		EVT_CLOSE(self, self.OnClose)
+		bmp = wx.Image(files['default_dir']+files['icon']+"/"+"splash.png").ConvertToBitmap()
+		wx.SplashScreen.__init__(self, bmp, wx.SPLASH_CENTRE_ON_SCREEN|wx.SPLASH_TIMEOUT, 100, None, -1, style = wx.SIMPLE_BORDER|wx.FRAME_NO_TASKBAR|wx.STAY_ON_TOP)
+		wx.EVT_CLOSE(self, self.OnClose)
 
 	def OnClose(self, evt):
 		app.frame.Show(1)
 		self.Destroy()
 
-class MySplashApp(wxApp): #for splash screen
+class MySplashApp(wx.App): #for splash screen
 	def OnInit(self):
 		frame=MySplashScreen()
 		frame.Show(1)
 		frame.Centre()
-		return true
+		return True
+		
 	def open_fin(self):
 		self.MainLoop()
 	def OnClose(self, evt):
 		self.Exit()
 	
-class MyApp(wxApp):
+class MyApp(wx.App):
 	def OnInit(self):
 		args=sys.argv[1:]
 		#print(args)
 		self.frame=MyFrame(None, -1, "wxEditor")
 		self.frame.Centre()
-		return true
+		return True
 
 splashapp = MySplashApp()
 

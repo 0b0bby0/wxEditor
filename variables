@@ -12,7 +12,7 @@ extensions['asp']=["asp"]
 extensions['c++']=["c", "cpp"]
 extensions['sql']=["sql", "sq"]
 #----------------------------------------------------------------------
-if wxPlatform == '__WXMSW__':
+if wx.Platform == '__WXMSW__':
     dir_separator="\\"
 else:
     dir_separator="/"
